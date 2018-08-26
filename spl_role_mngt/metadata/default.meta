@@ -1,0 +1,2 @@
+[]
+access = read : [ admin,role_admin ], write : [ admin ]
