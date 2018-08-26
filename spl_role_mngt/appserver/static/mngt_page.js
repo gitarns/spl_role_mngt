@@ -102,14 +102,14 @@ function
 	                	var value = values[1];
         	        	if (value == selected_user) {
 					var res = values[4].split(":");
-                        			for(var j = 0; j < res.length; j++) {
+                        		for(var j = 0; j < res.length; j++) {
 						var pos = cur_list.indexOf(res[j])
 						if (pos >= 0) {    
-						$("#current_roles").append($("<li class='ui-widget-content selectable'>").text(res[j]));
-						var delete_item = cur_list.splice(pos,1);
+							$("#current_roles").append($("<li class='ui-widget-content selectable'>").text(res[j]));
+							var delete_item = cur_list.splice(pos,1);
 						}
 						else {
-						$("#current_roles").append($("<li class='ui-widget-content  >").text(res[j]));
+							$("#current_roles").append($("<li class='ui-widget-content'>").text(res[j]));
 						}
 					
                         		}
