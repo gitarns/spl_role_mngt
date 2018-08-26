@@ -19,6 +19,7 @@ require(
     "splunkjs/mvc",
     "splunkjs/mvc/searchmanager",
     "splunkjs/mvc/dropdownview",
+    "splunkjs/mvc/multidropdownview",
     "splunkjs/mvc/simplexml/ready!"
 ],
 function
@@ -28,21 +29,23 @@ function
         mvc, 
         SearchManager, 
         DropdownView, 
+	MultiDropdownView,
 )
 {
 
 	// Instantiate components
 
 	var list_role = [];
+	var list_role_drop = [];
 
         var deleg_search = new SearchManager(
         {
                 id: "search_deleg",
-                search: "| inputlookup delegation.csv | table *",
+                search: "| inputlookup delegation.csv  | table *",
                 preview: false,
                 cache: true,
                 timeout: "60"
-        }
+        },{ tokens: true }
         );
 
         var results_deleg = deleg_search.data("results");
@@ -57,6 +60,7 @@ function
                           var res = values[0].split(":");
                           for(var j = 0; j < res.length; j++) {
                                 list_role.push(res[j]);
+				list_role_drop.push({label:res[j],value:res[j]});
                           }
                         }
                 }
@@ -83,6 +87,17 @@ function
         	el: $("#users_list")
         }
 	).render();
+	
+	var mydropdownrole = new MultiDropdownView(
+	{
+                id: "role_list_drop",
+		choices: list_role_drop,
+                showClearButton: true,
+                el: $("#new_add_role")
+        }
+        ).render();
+
+	
 
 
 	mydropdownuser.on("change", function() 
@@ -145,6 +160,21 @@ function
 		$(this).removeClass('ui-selected');
 
         });
+
+
+	$( "#update_role" ).on("click", function( event ) {
+	
+      		event.preventDefault();
+		
+
+    	});
+
+	$( "#add_user" ).on("click", function( event ) {
+
+                event.preventDefault();
+
+        });
+
      
    });
 
