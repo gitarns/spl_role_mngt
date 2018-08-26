@@ -34,7 +34,6 @@ function
 	// Instantiate components
 
 	var list_role = [];
-        var auth = false;
 
         var deleg_search = new SearchManager(
         {
@@ -55,7 +54,6 @@ function
                         var values = rows[i];
                         var value = values[1];
                         if (value == $C.USERNAME ) {
-                          auth = true;
                           var res = values[0].split(":");
                           for(var j = 0; j < res.length; j++) {
                                 list_role.push(res[j]);
@@ -63,9 +61,6 @@ function
                         }
                 }
 	
-
-	if ( auth !== false ) {
-
 
    	var user_search = new SearchManager(
 	{
@@ -131,9 +126,11 @@ function
 
 	
     	});
+
 	$(function() {
-    	$( ".paramsnav" ).selectable();
-	  });
+
+	    	$( ".paramsnav" ).selectable();
+	});
 
 	$( "#current_roles" ).on("click","li.selectable", function(event) {    
 
@@ -148,15 +145,6 @@ function
 		$(this).removeClass('ui-selected');
 
         });
-
-	}
-     else {
-	
-	$("#select").remove();
-	$("#users_list").remove();
-	$("#current_roles").remove();
-	$("#dispo_roles").remove();	
-     }
      
    });
 
