@@ -14,6 +14,7 @@ require.config({
 
 require(
 [
+    "underscore",
     "jquery",
     "jquery-ui",
     "splunkjs/mvc",
@@ -26,10 +27,12 @@ function
 (
 	_,
 	_,
+	_,
         mvc, 
         SearchManager, 
         DropdownView, 
 	MultiDropdownView,
+	createService,	
 )
 {
 
@@ -124,7 +127,7 @@ function
 							var delete_item = cur_list.splice(pos,1);
 						}
 						else {
-							$("#current_roles").append($("<li class='ui-widget-content'>").text(res[j]));
+							$("#current_roles").append($("<li class='ui-widget-content forbiden'>").text(res[j]));
 						}
 					
                         		}
@@ -132,7 +135,7 @@ function
 			}
 			
 			for (var j = 0; j < cur_list.length; j++) {
-	        	        $("#dispo_roles").append($("<li class='ui-widget-content selectable'>").text(cur_list[j]));
+	        	        $("#dispo_roles").append($("<li class='ui-widget-content selectable '>").text(cur_list[j]));
         	        }
 
 		});
@@ -166,12 +169,24 @@ function
 	
       		event.preventDefault();
 		
+		var selected_user = mydropdownuser.settings.get("value");		
+		
+		cur_options = [];
+
+		$('.current li').each(function() { 
+			cur_options.push($(this).text()); 
+		});
+
+
+		var service = mvc.createService();
+		
 
     	});
 
 	$( "#add_user" ).on("click", function( event ) {
 
                 event.preventDefault();
+		var data = $("#add_user_form").serializeArray();
 
         });
 
