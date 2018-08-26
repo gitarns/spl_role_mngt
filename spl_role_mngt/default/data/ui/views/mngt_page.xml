@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<form script="mngt_page.js" stylesheet="mngt_page.css" >
+	
+	<label>Splunk Role Management</label>
+	
+	<row>
+		<panel>
+		<html>  
+			<p></p>
+			<div id="select">
+			<h3>Selectionner un utilisateur</h3>
+			<div id="users_list"></div>
+
+				<div id="params">	
+
+				<ul id="current_roles" class="paramsnav dropdown"></ul>
+				
+                                <ul id="dispo_roles" class="paramsnav dropdown"></ul>
+
+				</div>
+			</div>
+			
+		</html>
+		</panel>
+	</row>
+</form>
+

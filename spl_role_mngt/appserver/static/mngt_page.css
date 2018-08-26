@@ -1,0 +1,26 @@
+.paramsnav {
+    width: 15em;
+    height: 17em;
+    line-height: 2em;
+    border: 1px solid #ccc;
+    margin: 0;
+    overflow: auto;
+    overflow-x: auto;
+    display: inline-block;
+    -webkit-padding-start: 0px;
+}
+
+.paramselect {
+
+}
+
+.paramsnav .ui-selecting { background: #00C0EF; }
+.paramsnav .ui-selected { background: rgb(60, 141, 188) ; color: white; }
+.paramsnav { list-style-type: none ; }
+.paramsnav li { padding:4px; margin: 3px; border:1px solid #D2D6DE }
+
+.innerdiv {
+    display: table;
+    margin: 0 auto;
+}
+

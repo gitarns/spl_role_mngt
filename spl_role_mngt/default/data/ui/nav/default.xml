@@ -1,0 +1,6 @@
+<nav color="#858585" search_view="search">
+  <view name="mngt_page" default="true" />
+  <collection label="Search">
+  	<view name="search" />
+  </collection>
+</nav>
