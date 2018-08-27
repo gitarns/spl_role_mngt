@@ -17,7 +17,8 @@
 				
                                 <ul id="dispo_roles" class="paramsnav dropdown dispo"></ul>
 				
-				<button id="update_role" class="ui-button ui-widget ui-corner-all">Appliquer</button>
+				<button id="save_role" class="ui-button ui-widget ui-corner-all">Enregister</button>
+
 
 			</div>
 			</form>
@@ -41,7 +42,7 @@
 			Service:<br></br>
                         <input type="text" name="service" id="service"></input><br></br>
 			Roles:<br></br>
-			<div id="new_add_role"></div>
+			<div id="new_add_role"></div><br></br>
 			<button id="add_user" class="ui-button ui-widget ui-corner-all">Appliquer</button>
 			</form>
 				
