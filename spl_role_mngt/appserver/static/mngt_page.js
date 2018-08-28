@@ -19,6 +19,7 @@ require(
     "splunkjs/mvc",
     "splunkjs/mvc/dropdownview",
     "splunkjs/mvc/multidropdownview",
+    "splunkjs/mvc/searchmanager",
     "splunkjs/mvc/simplexml/ready!"
 ],
 function
@@ -28,6 +29,7 @@ function
         mvc, 
         DropdownView, 
 	MultiDropdownView,
+	SearchManager
 )
 {
 
@@ -35,7 +37,14 @@ function
 	// Global
 	var lk_users_dict = [];
 	var lk_delegation_dict = [];
-	
+
+	function get_all_roles() {
+
+		var rt_list;
+		// | rest /services/authorization/roles | table titles
+
+
+	}	
 
 	function rest_load_csv(lookup) {	
 	
