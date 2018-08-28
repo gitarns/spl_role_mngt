@@ -41,10 +41,15 @@
                         <input type="text" name="email" id="email"></input><br></br>
 			Service:<br></br>
                         <input type="text" name="service" id="service"></input><br></br>
-			Roles:<br></br>
-			<div id="new_add_role"></div><br></br>
-			<button id="add_user" class="ui-button ui-widget ui-corner-all">Appliquer</button>
 			</form>
+			Roles:<br></br>
+
+			<div id="params">
+                        <ul id="add_user_current_roles" class="paramsnav dropdown current"></ul>
+                        <ul id="add_user_dispo_roles" class="paramsnav dropdown dispo"></ul>
+			</div>
+
+			<button id="add_user" class="ui-button ui-widget ui-corner-all">Ajouter</button>
 				
 		</html> 
 		</panel>

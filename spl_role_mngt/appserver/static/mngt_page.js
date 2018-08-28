@@ -37,6 +37,10 @@ function
 	// Global
 	var lk_users_dict = [];
 	var lk_delegation_dict = [];
+	
+	function cl(msg) {
+		console.log(msg);
+	}
 
 	function get_all_roles() {
 
@@ -46,6 +50,41 @@ function
 
 	}	
 
+	
+	function rest_save_csv(user_dict,lk_name) {
+		
+		
+		// Back to csv
+		var fields = Object.keys(user_dict[0]);
+		var array = Object.values(user_dict);
+		var csv = [];
+		csv.push(fields);
+		for (var line of array) {
+			csv.push(fields.map(key => line[key]));
+		}
+
+		var json = JSON.stringify(csv);
+
+		data = {"lookup_file":lk_name,
+                "namespace"  :"spl_role_mngt",
+			    "contents"   : json};
+
+		url = Splunk.util.make_full_url("/splunkd/__raw/services/data/lookup_edit/lookup_contents");
+
+		$.ajax({
+				url: url,
+				type: 'POST',
+				data: data,
+
+							success: function () {
+										return true;
+									}
+		});
+	
+		
+	}
+	
+	
 	function rest_load_csv(lookup) {	
 	
 		var data_ret = [];
@@ -114,6 +153,15 @@ function
 		mydropdownuser.settings.set("choices", list);
 	}
 	
+	function fill_add_user_role(deleg_dict) {	
+		
+		deleg_dict[deleg_dict.findIndex((obj => obj.user == $C.USERNAME))].roles.split(":").forEach(function(element) {
+			
+				$("#add_user_dispo_roles").append($("<li class='ui-widget-content selectable'>").text(element));
+			
+		});
+		
+	}
 
 	var mydropdownuser = new DropdownView(
         {
@@ -130,6 +178,7 @@ function
 	lk_delegation_dict  =  csv_2_dict(csv);
 	
 	fill_user_list(lk_users_dict);
+	fill_add_user_role(lk_delegation_dict);
 
 	mydropdownuser.on("change", function()
         {
@@ -194,44 +243,71 @@ function
 		lk_users_dict[objIndex].roles = cur_options.join(":");
 
 	});
+	
+	$( "#add_user_dispo_roles" ).on("click","li.selectable", function(event) {
+
+		$(this).appendTo("#add_user_current_roles");
+		$(this).removeClass('ui-selected');
+
+	});
+	
+	$( "#add_user_current_roles" ).on("click","li.selectable", function(event) {
+
+		$(this).appendTo("#add_user_dispo_roles");
+		$(this).removeClass('ui-selected');
+
+	});
 
 
 	$( "#save_role" ).on("click", function( event ) {
 
         event.preventDefault();
-		$("#save_role").text("Saving....");
-
-		// Back to csv
-		var fields = Object.keys(lk_users_dict[0]);
-		var array = Object.values(lk_users_dict);
-		var csv = [];
-		csv.push(fields);
-		for (var line of array) {
-			csv.push(fields.map(key => line[key]));
-		}
-
-		var json = JSON.stringify(csv);
-
-		data = {"lookup_file":"user.csv",
-                "namespace"  :"spl_role_mngt",
-			    "contents"   : json};
-
-		url = Splunk.util.make_full_url("/splunkd/__raw/services/data/lookup_edit/lookup_contents");
-
-		$.ajax({
-				url: url,
-				type: 'POST',
-				data: data,
-
-							success: function () {
-									$("#save_role").text("Sauvegarder");
-									console.log("user.csv saved");
-									}
-		});
-
+		rest_save_csv(lk_users_dict,"user.csv");
+		
     });
 
-
+	$( "#add_user" ).on("click", function( event ) {
+			
+			event.preventDefault();
+			
+			//get form data 
+			var all_forms_data = $("#add_user_form").serializeArray();
+			var new_user = {};
+			for (var i = 0; i < all_forms_data.length; i++){
+				new_user[all_forms_data[i]['name']] = all_forms_data[i]['value'];
+				}
+			
+			//Check: user exists
+			if (lk_users_dict.findIndex((obj => obj.idrh == new_user["idrh"])) != -1) {
+				alert("L'utilisateur "+new_user["idrh"]+" existe déjà !!");
+				$("#idrh").val("");
+				return;
+			}
+		
+			
+			//Get roles
+			cur_options = [];
+			$('#add_user_current_roles li').each(function() {
+				cur_options.push($(this).text());
+			});
+			new_user["roles"] = cur_options.join(":");
+			
+			// Push dans lk 
+			lk_users_dict.push(new_user);
+			
+			// Reload user list
+			fill_user_list(lk_users_dict);
+			
+			// Clear
+			$("#add_user_form").trigger("reset");
+			$("#add_user_current_roles").empty();
+			$("#add_user_dispo_roles").empty();
+			
+			fill_add_user_role(lk_delegation_dict);
+			
+			
+		
+	});
 });
 
 
