@@ -18,7 +18,6 @@ require(
     "jquery-ui",
     "splunkjs/mvc",
     "splunkjs/mvc/dropdownview",
-    "splunkjs/mvc/multidropdownview",
     "splunkjs/mvc/searchmanager",
     "splunkjs/mvc/simplexml/ready!"
 ],
@@ -28,7 +27,6 @@ function
 	_,
         mvc, 
         DropdownView, 
-	MultiDropdownView,
 	SearchManager
 )
 {
@@ -43,12 +41,10 @@ function
 	var mainSearch = new SearchManager({
         id: "mysearch",
         search: " | rest /services/authorization/roles | table title ",
-        preview: true,
+        preview: false,
 		exec_mode: "blocking",
         cache: true
 		});
-		
-	
 		
 	
 	function cl(msg) {
@@ -155,6 +151,7 @@ function
 		});
 			
 		mydropdownuser.settings.set("choices", list);
+		
 	}
 	
 	function fill_add_user_role() {	
@@ -206,11 +203,13 @@ function
 	var mydropdownuser = new DropdownView(
         {
                 id: "users_list",
-                showClearButton: false,
+                showClearButton: true,
+				allowCustomValues: false,
                 el: $("#users_list")
 				
-        }).render();
-	
+	}).render();
+
+		
 	// initial load:
 	csv = rest_load_csv("user.csv");
     lk_users_dict  =  csv_2_dict(csv);
@@ -233,6 +232,14 @@ function
 		mydropdownuser.on("change", function()
 			{
 				var selected_user = mydropdownuser.settings.get("value");
+				
+				if (lk_users_dict.findIndex((obj => obj.idrh == selected_user)) == -1 ) {
+				
+				fill_user_list(lk_users_dict);
+				return;
+				
+				}
+				
 				var cur_list_role = lk_users_dict[lk_users_dict.findIndex((obj => obj.idrh == selected_user))].roles.split(":");
 				var available_role = get_available_roles();  
 				
