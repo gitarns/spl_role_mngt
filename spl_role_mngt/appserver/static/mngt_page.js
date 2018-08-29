@@ -37,19 +37,23 @@ function
 	// Global
 	var lk_users_dict = [];
 	var lk_delegation_dict = [];
+	var all_roles = [];
+	
+	// Create the search manager & results global
+	var mainSearch = new SearchManager({
+        id: "mysearch",
+        search: " | rest /services/authorization/roles | table title ",
+        preview: true,
+		exec_mode: "blocking",
+        cache: true
+		});
+		
+	
+		
 	
 	function cl(msg) {
 		console.log(msg);
 	}
-
-	function get_all_roles() {
-
-		var rt_list;
-		// | rest /services/authorization/roles | table titles
-
-
-	}	
-
 	
 	function rest_save_csv(user_dict,lk_name) {
 		
@@ -153,16 +157,52 @@ function
 		mydropdownuser.settings.set("choices", list);
 	}
 	
-	function fill_add_user_role(deleg_dict) {	
+	function fill_add_user_role() {	
 		
-		deleg_dict[deleg_dict.findIndex((obj => obj.user == $C.USERNAME))].roles.split(":").forEach(function(element) {
-			
+		var tmp_array = get_available_roles();
+	
+		
+		tmp_array.forEach(function(element) {
+				
 				$("#add_user_dispo_roles").append($("<li class='ui-widget-content selectable'>").text(element));
 			
 		});
 		
 	}
-
+	
+	function get_available_roles() {
+		
+		var rt_list_roles = [];
+		
+		c_list_roles = lk_delegation_dict[lk_delegation_dict.findIndex((obj => obj.user == $C.USERNAME))].roles.split(":");
+		
+		c_list_roles.forEach(function(element) {
+		
+								
+								if (all_roles.indexOf(element) != -1) {
+									
+									if (element !== "__ALL__") {
+									rt_list_roles.push(element);
+									}
+								}
+								else if (element !== "__ALL__") {
+									cl("Role:"+element+" présent dans delegation.csv mais non définit dans authorize.conf");
+									}
+								
+								
+		
+							});
+		
+		// admin & admin_limited
+		if (c_list_roles.includes("__ALL__")){
+			rt_list_roles = [];
+			rt_list_roles = JSON.parse(JSON.stringify(all_roles));
+		}
+		
+		return rt_list_roles;
+		
+	}
+	
 	var mydropdownuser = new DropdownView(
         {
                 id: "users_list",
@@ -177,136 +217,152 @@ function
 	csv = rest_load_csv("delegation.csv");
 	lk_delegation_dict  =  csv_2_dict(csv);
 	
-	fill_user_list(lk_users_dict);
-	fill_add_user_role(lk_delegation_dict);
+	// Wait until search is ready
+	var results = mainSearch.data("results");
+	mainSearch.on("search:done", function() {		
+	
+		
+		// Warning: results.data().rows returns Array of arrays.....
+		results.data().rows.forEach(function(element) {
+			all_roles.push(element[0]);
+		});
+		
+		fill_user_list(lk_users_dict);
+		fill_add_user_role();
 
-	mydropdownuser.on("change", function()
-        {
-			var selected_user = mydropdownuser.settings.get("value");
-			var cur_list_role = lk_users_dict[lk_users_dict.findIndex((obj => obj.idrh == selected_user))].roles.split(":");
-			var available_role =  lk_delegation_dict[lk_delegation_dict.findIndex((obj => obj.user == $C.USERNAME))].roles.split(":");   
-			
-			$("#current_roles").empty();
-					$("#dispo_roles").empty();
-			cur_list_role.forEach(function(element) {
-				var pos = available_role.indexOf(element); // >0 si dans liste auth
-				if (pos >= 0) {
-								$("#current_roles").append($("<li class='ui-widget-content selectable'>").text(element));
-									var delete_item = available_role.splice(pos,1);
-							}
-							else {
-									 $("#current_roles").append($("<li class='ui-widget-content forbiden'>").text(element));
-							}
+		mydropdownuser.on("change", function()
+			{
+				var selected_user = mydropdownuser.settings.get("value");
+				var cur_list_role = lk_users_dict[lk_users_dict.findIndex((obj => obj.idrh == selected_user))].roles.split(":");
+				var available_role = get_available_roles();  
+				
+				$("#current_roles").empty();
+				$("#dispo_roles").empty();
+				
+				cur_list_role.forEach(function(element) {
+					
+					var pos = available_role.indexOf(element); // >0 si dans liste auth
+					
+					if (pos != -1 ) {
+						$("#current_roles").append($("<li class='ui-widget-content selectable'>").text(element));
+						var delete_item = available_role.splice(pos,1);
+						}
+					else {
+						$("#current_roles").append($("<li class='ui-widget-content forbiden'>").text(element));
+						}
 
+				});
+				
+				available_role.forEach(function(element) {
+					$("#dispo_roles").append($("<li class='ui-widget-content selectable '>").text(element));
+				});	
 			});
-			available_role.forEach(function(element) {
-				$("#dispo_roles").append($("<li class='ui-widget-content selectable '>").text(element));
-			});	
-		});
 
-	$(function() {
+		$(function() {
 
-                $( ".paramsnav" ).selectable();
-        });
+					$( ".paramsnav" ).selectable();
+			});
 
-	$( "#current_roles" ).on("click","li.selectable", function(event) {
+		$( "#current_roles" ).on("click","li.selectable", function(event) {
 
-		$(this).appendTo("#dispo_roles");
-		$(this).removeClass('ui-selected');
-		
-
-		cur_options = [];
-
-		$('.current li').each(function() {
-				cur_options.push($(this).text());
-		});
-		
-		var selected_user = mydropdownuser.settings.get("value");
-		objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
-		lk_users_dict[objIndex].roles = cur_options.join(":");
-
-	});
-
-	$( "#dispo_roles" ).on("click","li.selectable", function(event) {
-
-		$(this).appendTo("#current_roles");
-		$(this).removeClass('ui-selected');
-		
-		cur_options = [];
-
-		$('.current li').each(function() {
-				cur_options.push($(this).text());
-		});
-		
-		var selected_user = mydropdownuser.settings.get("value");
-		objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
-		lk_users_dict[objIndex].roles = cur_options.join(":");
-
-	});
-	
-	$( "#add_user_dispo_roles" ).on("click","li.selectable", function(event) {
-
-		$(this).appendTo("#add_user_current_roles");
-		$(this).removeClass('ui-selected');
-
-	});
-	
-	$( "#add_user_current_roles" ).on("click","li.selectable", function(event) {
-
-		$(this).appendTo("#add_user_dispo_roles");
-		$(this).removeClass('ui-selected');
-
-	});
-
-
-	$( "#save_role" ).on("click", function( event ) {
-
-        event.preventDefault();
-		rest_save_csv(lk_users_dict,"user.csv");
-		
-    });
-
-	$( "#add_user" ).on("click", function( event ) {
+			$(this).appendTo("#dispo_roles");
+			$(this).removeClass('ui-selected');
 			
+
+			cur_options = [];
+
+			$('.current li').each(function() {
+					cur_options.push($(this).text());
+			});
+			
+			var selected_user = mydropdownuser.settings.get("value");
+			objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
+			lk_users_dict[objIndex].roles = cur_options.join(":");
+
+		});
+
+		$( "#dispo_roles" ).on("click","li.selectable", function(event) {
+
+			$(this).appendTo("#current_roles");
+			$(this).removeClass('ui-selected');
+			
+			cur_options = [];
+
+			$('.current li').each(function() {
+					cur_options.push($(this).text());
+			});
+			
+			var selected_user = mydropdownuser.settings.get("value");
+			objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
+			lk_users_dict[objIndex].roles = cur_options.join(":");
+
+		});
+		
+		$( "#add_user_dispo_roles" ).on("click","li.selectable", function(event) {
+
+			$(this).appendTo("#add_user_current_roles");
+			$(this).removeClass('ui-selected');
+
+		});
+		
+		$( "#add_user_current_roles" ).on("click","li.selectable", function(event) {
+
+			$(this).appendTo("#add_user_dispo_roles");
+			$(this).removeClass('ui-selected');
+
+		});
+
+
+		$( "#save_role" ).on("click", function( event ) {
+
 			event.preventDefault();
+			rest_save_csv(lk_users_dict,"user.csv");
 			
-			//get form data 
-			var all_forms_data = $("#add_user_form").serializeArray();
-			var new_user = {};
-			for (var i = 0; i < all_forms_data.length; i++){
-				new_user[all_forms_data[i]['name']] = all_forms_data[i]['value'];
+		});
+
+		$( "#add_user" ).on("click", function( event ) {
+				
+				event.preventDefault();
+				
+				//get form data dict format
+				var all_forms_data = $("#add_user_form").serializeArray();
+				var new_user = {};
+				for (var i = 0; i < all_forms_data.length; i++){
+					new_user[all_forms_data[i]['name']] = all_forms_data[i]['value'];
+					}
+				
+				//Check: user exists
+				if (lk_users_dict.findIndex((obj => obj.idrh == new_user["idrh"])) != -1) {
+					alert("L'utilisateur "+new_user["idrh"]+" existe déjà !!");
+					$("#idrh").val("");
+					return;
 				}
 			
-			//Check: user exists
-			if (lk_users_dict.findIndex((obj => obj.idrh == new_user["idrh"])) != -1) {
-				alert("L'utilisateur "+new_user["idrh"]+" existe déjà !!");
-				$("#idrh").val("");
-				return;
-			}
-		
+				
+				//Get roles
+				cur_options = [];
+				$('#add_user_current_roles li').each(function() {
+					cur_options.push($(this).text());
+				});
+				new_user["roles"] = cur_options.join(":");
+				
+				// Push dans lk 
+				lk_users_dict.push(new_user);
+				
+				// Reload user list
+				fill_user_list(lk_users_dict);
+				
+				// Clear
+				$("#add_user_form").trigger("reset");
+				$("#add_user_current_roles").empty();
+				$("#add_user_dispo_roles").empty();
+				
+				fill_add_user_role();
+				
+				
 			
-			//Get roles
-			cur_options = [];
-			$('#add_user_current_roles li').each(function() {
-				cur_options.push($(this).text());
-			});
-			new_user["roles"] = cur_options.join(":");
-			
-			// Push dans lk 
-			lk_users_dict.push(new_user);
-			
-			// Reload user list
-			fill_user_list(lk_users_dict);
-			
-			// Clear
-			$("#add_user_form").trigger("reset");
-			$("#add_user_current_roles").empty();
-			$("#add_user_dispo_roles").empty();
-			
-			fill_add_user_role(lk_delegation_dict);
-			
-			
-		
+		});
+	
 	});
 });
 
