@@ -7,21 +7,20 @@
 	<row>
 		<panel>
 		<html>  
-			<form id="update_role_form">
-			<h3>Selectionner un utilisateur</h3>
-			<div id="users_list"></div>
+				<div id="top_user_list" class="user_list"></div>
+
+				<br></br>
 
 				<div id="params">	
 
 				<ul id="current_roles" class="paramsnav dropdown current"></ul>
 				
                                 <ul id="dispo_roles" class="paramsnav dropdown dispo"></ul>
+
+				</div>
 				
 				<button id="save_role" class="ui-button ui-widget ui-corner-all">Enregister</button>
 
-
-			</div>
-			</form>
 			
 		</html>
 		</panel>

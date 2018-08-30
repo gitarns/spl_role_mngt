@@ -3,21 +3,23 @@ require.config({
     paths: {
         'jquery-ui': '../app/spl_role_mngt/js/contrib/jquery-1.11.1.ui.min',
         'jquery': '../app/spl_role_mngt/js/contrib/jquery-1.12.1.min',
+	'select2': '../app/spl_role_mngt/js/contrib/select2.min'
     },
     shim: {
 	"jquery": {},
         "jquery_ui": {
-            deps: ["jquery"]
-        }
+            deps: ["jquery"],
+        },
+	"select2": {},
     }
 });
 
 require(
 [
+    "select2",
     "jquery",
     "jquery-ui",
     "splunkjs/mvc",
-    "splunkjs/mvc/dropdownview",
     "splunkjs/mvc/searchmanager",
     "splunkjs/mvc/simplexml/ready!"
 ],
@@ -25,27 +27,17 @@ function
 (
 	_,
 	_,
+	_,
         mvc, 
-        DropdownView, 
 	SearchManager
 )
 {
-
 	
+
 	// Global
 	var lk_users_dict = [];
 	var lk_delegation_dict = [];
 	var all_roles = [];
-	
-	// Create the search manager & results global
-	var mainSearch = new SearchManager({
-        id: "mysearch",
-        search: " | rest /services/authorization/roles | table title ",
-        preview: false,
-	exec_mode: "blocking",
-        cache: true
-	});
-		
 	
 	function cl(msg) {
 		console.log(msg);
@@ -137,21 +129,25 @@ function
 		return dict;
 	}
 	
-	function fill_user_list(user_dict) {
+	function s2_fill_user_list() {
 		
 		var list = [] ;
-		user_dict.forEach(function(key) {
+		var id=0;
+		lk_users_dict.forEach(function(key) {
 			
-			var key1 = "label";
-			var key2 = "value";
+			var key1 = "id";
+			var key2 = "text";
+			var key3 = "full_name";
 			var obj = {};
-			obj[key1] = key.idrh+" ("+key.prenom+" "+key.nom+")";
+			obj[key1] = id;
 			obj[key2] = key.idrh;
+		    obj[key3] = key.prenom+" "+key.nom;
 			list.push(obj);
+			id = id + 1;
 		
 		});
 			
-		mydropdownuser.settings.set("choices", list);
+		return list;
 		
 	}
 	
@@ -201,177 +197,227 @@ function
 		
 	}
 	
-	var mydropdownuser = new DropdownView(
-        {
-                id: "users_list",
-                showClearButton: true,
-				allowCustomValues: false,
-                el: $("#users_list")
-				
-	}).render();
+	function get_all_roles(){
+		
+		var myservice = mvc.createService();
+		var searchQuery = "rest /services/authorization/roles | table title";
 
+		console.log("Wait for the search to finish...");
+		myservice.search(
+					  searchQuery,
+					  {exec_mode: "blocking"},
+					  function(err, job) {
+							console.log("...done!\n");
+							job.fetch(function(err){
+							  job.results({}, function(err, results) {
+									results.rows.forEach(function(element){
+										all_roles.push(element[0]);
+									});
+								});
+							});
+						});
+				
+	}
 		
 	// initial load:
+	get_all_roles();
 	csv = rest_load_csv("user.csv");
     lk_users_dict  =  csv_2_dict(csv);
 	csv = rest_load_csv("delegation.csv");
 	lk_delegation_dict  =  csv_2_dict(csv);
 	
-	// Wait until search is ready
-	var results = mainSearch.data("results");
-	mainSearch.on("search:done", function() {		
 	
+	var drop_user = $('#top_user_list');
 		
-		// Warning: results.data().rows returns Array of arrays.....
-		results.data().rows.forEach(function(element) {
-			all_roles.push(element[0]);
-		});
+	drop_user.select2({
+		 placeholder: "Selectionner un utilisateur",
+		 data: s2_fill_user_list(),
+		 dropdownAutoWidth: true,
+		 width: 'auto',
+		 allowClear: true
+	});
+	
+	
+	
+	
+	drop_user.on('change', function (e) {
 		
-		fill_user_list(lk_users_dict);
-		fill_add_user_role();
-
-		mydropdownuser.on("change", function()
-			{
-				var selected_user = mydropdownuser.settings.get("value");
-				
-				if (lk_users_dict.findIndex((obj => obj.idrh == selected_user)) == -1 ) {
-				
-				fill_user_list(lk_users_dict);
-				return;
-				
-				}
-				
-				var cur_list_role = lk_users_dict[lk_users_dict.findIndex((obj => obj.idrh == selected_user))].roles.split(":");
-				var available_role = get_available_roles();  
-				
-				$("#current_roles").empty();
-				$("#dispo_roles").empty();
-				
-				cur_list_role.forEach(function(element) {
-					
-					var pos = available_role.indexOf(element); // >0 si dans liste auth
-					
-					if (pos != -1 ) {
-						$("#current_roles").append($("<li class='ui-widget-content selectable'>").text(element));
-						var delete_item = available_role.splice(pos,1);
-						}
-					else {
-						$("#current_roles").append($("<li class='ui-widget-content forbiden'>").text(element));
-						}
-
-				});
-				
-				available_role.forEach(function(element) {
-					$("#dispo_roles").append($("<li class='ui-widget-content selectable '>").text(element));
-				});	
-			});
-
-		$(function() {
-
-					$( ".paramsnav" ).selectable();
-			});
-
-		$( "#current_roles" ).on("click","li.selectable", function(event) {
-
-			$(this).appendTo("#dispo_roles");
-			$(this).removeClass('ui-selected');
+			var selected_user = e.added.text;
 			
-
-			cur_options = [];
-
-			$('.current li').each(function() {
-					cur_options.push($(this).text());
-			});
+			var cur_list_role = lk_users_dict[lk_users_dict.findIndex((obj => obj.idrh == selected_user))].roles.split(":");
+			var available_role = get_available_roles();  
 			
-			var selected_user = mydropdownuser.settings.get("value");
-			objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
-			lk_users_dict[objIndex].roles = cur_options.join(":");
-
-		});
-
-		$( "#dispo_roles" ).on("click","li.selectable", function(event) {
-
-			$(this).appendTo("#current_roles");
-			$(this).removeClass('ui-selected');
+			$("#current_roles").empty();
+			$("#dispo_roles").empty();
 			
-			cur_options = [];
-
-			$('.current li').each(function() {
-					cur_options.push($(this).text());
-			});
-			
-			var selected_user = mydropdownuser.settings.get("value");
-			objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
-			lk_users_dict[objIndex].roles = cur_options.join(":");
-
-		});
-		
-		$( "#add_user_dispo_roles" ).on("click","li.selectable", function(event) {
-
-			$(this).appendTo("#add_user_current_roles");
-			$(this).removeClass('ui-selected');
-
-		});
-		
-		$( "#add_user_current_roles" ).on("click","li.selectable", function(event) {
-
-			$(this).appendTo("#add_user_dispo_roles");
-			$(this).removeClass('ui-selected');
-
-		});
-
-
-		$( "#save_role" ).on("click", function( event ) {
-
-			event.preventDefault();
-			rest_save_csv(lk_users_dict,"user.csv");
-			
-		});
-
-		$( "#add_user" ).on("click", function( event ) {
+			cur_list_role.forEach(function(element) {
 				
-				event.preventDefault();
+				var pos = available_role.indexOf(element); // >0 si dans liste auth
 				
-				//get form data dict format
-				var all_forms_data = $("#add_user_form").serializeArray();
-				var new_user = {};
-				for (var i = 0; i < all_forms_data.length; i++){
-					new_user[all_forms_data[i]['name']] = all_forms_data[i]['value'];
+				if (pos != -1 ) {
+					$("#current_roles").append($("<li class='ui-widget-content selectable'>").text(element));
+					var delete_item = available_role.splice(pos,1);
 					}
+				else {
+					$("#current_roles").append($("<li class='ui-widget-content forbiden'>").text(element));
+					}
+
+			});
+			
+			available_role.forEach(function(element) {
+				$("#dispo_roles").append($("<li class='ui-widget-content selectable '>").text(element));
+			});	
+		});
+
+	$(function() {
+
+				$( ".paramsnav" ).selectable();
+		});
+
+	$( "#current_roles" ).on("click","li.selectable", function(event) {
+
+		$(this).appendTo("#dispo_roles");
+		$(this).removeClass('ui-selected');
+		
+
+		cur_options = [];
+
+		$('.current li').each(function() {
+				cur_options.push($(this).text());
+		});
+		
+		var selected_user = drop_user.select2('data').text;
+		objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
+		lk_users_dict[objIndex].roles = cur_options.join(":");
+
+	});
+
+	$( "#dispo_roles" ).on("click","li.selectable", function(event) {
+
+		$(this).appendTo("#current_roles");
+		$(this).removeClass('ui-selected');
+		
+		cur_options = [];
+
+		$('.current li').each(function() {
+				cur_options.push($(this).text());
+		});
+		
+		var selected_user = drop_user.select2('data').text;
+		objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
+		lk_users_dict[objIndex].roles = cur_options.join(":");
+
+	});
+	
+	$( "#add_user_dispo_roles" ).on("click","li.selectable", function(event) {
+
+		$(this).appendTo("#add_user_current_roles");
+		$(this).removeClass('ui-selected');
+
+	});
+	
+	$( "#add_user_current_roles" ).on("click","li.selectable", function(event) {
+
+		$(this).appendTo("#add_user_dispo_roles");
+		$(this).removeClass('ui-selected');
+
+	});
+
+
+	$( "#save_role" ).on("click", function( event ) {
+
+		event.preventDefault();
+		rest_save_csv(lk_users_dict,"user.csv");
+		
+	});
+	
+	$("#idrh").on("click", function( event ) {
+		
+		fill_add_user_role();
+		
+	});
+	
+	
+
+	$( "#add_user" ).on("click", function( event ) {
+			
+			event.preventDefault();
+	
+			var re_mail = RegExp('^[\\w-]+\\.[\\w-]+@labanquepostale\\.fr$');
+			var re_nom = RegExp('[^\\w-]','g');
+			var re_service = RegExp('[^\\w\\d/]','g');
+			var re_idrh = RegExp('[^\\w\\d]','g');
+			//get form data dict format
+			var all_forms_data = $("#add_user_form").serializeArray();
+			var new_user = {};
+			for (var i = 0; i < all_forms_data.length; i++){
+				new_user[all_forms_data[i]['name']] = all_forms_data[i]['value'];
 				
-				//Check: user exists
-				if (lk_users_dict.findIndex((obj => obj.idrh == new_user["idrh"])) != -1) {
-					alert("L'utilisateur "+new_user["idrh"]+" existe déjà !!");
-					$("#idrh").val("");
+				// Check empty or bad inputs
+				if(all_forms_data[i]['value'] == ""){
+					alert(all_forms_data[i]['name']+" ne peut pas ête vide !!");
 					return;
 				}
+				switch (all_forms_data[i]['name']) {
+					
+					case 'idrh':
+								if(re_idrh.test(all_forms_data[i]['value'])){alert(all_forms_data[i]['name']+": Liste des caractères autorisés:\n [a-z] [A-Z] [0-9]");return;}
+								break;
+					case 'nom':
+					case 'prenom':
+							if(re_nom.test(all_forms_data[i]['value'])){alert(all_forms_data[i]['name']+": Liste des caractères autorisés:\n [a-z] [A-Z] -");return;}
+							break;
+					case 'email':
+							if(re_mail.test(all_forms_data[i]['value']) == false){alert(all_forms_data[i]['name']+": Format de l'email non valide \n prenom.nom@labanquepostale.fr ou prenom.nom-prestataire@labanquepostale.fr");return;}
+							break;	
+					case 'service':
+							if(re_service.test(all_forms_data[i]['value'])){alert(all_forms_data[i]['name']+": Liste des caractères autorisés:\n [a-z] [A-Z] [0-9] /");return;}
+							break;
+				}
+				
+				
+			}
 			
-				
-				//Get roles
-				cur_options = [];
-				$('#add_user_current_roles li').each(function() {
-					cur_options.push($(this).text());
-				});
-				new_user["roles"] = cur_options.join(":");
-				
-				// Push dans lk 
-				lk_users_dict.push(new_user);
-				
-				// Reload user list
-				fill_user_list(lk_users_dict);
-				
-				// Clear
-				$("#add_user_form").trigger("reset");
-				$("#add_user_current_roles").empty();
-				$("#add_user_dispo_roles").empty();
-				
-				fill_add_user_role();
-				
-				
 			
-		});
-	
+			//Check: user exists
+			if (lk_users_dict.findIndex((obj => obj.idrh == new_user["idrh"])) != -1) {
+				alert("L'utilisateur "+new_user["idrh"]+" existe déjà !!");
+				$("#idrh").val("");
+				return;
+			}
+		
+			
+			//Get roles
+			cur_options = [];
+			$('#add_user_current_roles li').each(function() {
+				cur_options.push($(this).text());
+			});
+			
+			if(cur_options.length == 0){
+				alert("L'utilisateur n'a aucun rôle attribué");
+				return;
+			}
+				
+			new_user["roles"] = cur_options.join(":");
+			
+			// Push dans lk 
+			lk_users_dict.push(new_user);
+			
+			// Reload user list
+			fill_user_list(lk_users_dict);
+			
+			// Clear
+			$("#add_user_form").trigger("reset");
+			$("#add_user_current_roles").empty();
+			$("#add_user_dispo_roles").empty();
+			
+			fill_add_user_role();
+			
+			
+		
 	});
+	
+	
 });
 
 
