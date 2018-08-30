@@ -1,3 +1,13 @@
-[lookups/user.csv]
-version = 7.1.2
-modtime = 1535411239.483785000
+[lookup/delegation.csv]
+access = read : [deleg_role,admin,admin_limited] , write : [admin,admin_limited]
+
+[lookup/user.csv]
+access = read : [user_authentication,deleg_role,admin,admin_limited] , write : [admin,admin_limited,user_authentication]
+
+
+[views/deleg_mngt_page.xml]
+access = read : [admin,admin_limited] , write : [admin]
+
+[views/mngt_page.xml]
+access = read : [deleg_role,admin,admin_limited] , write : [admin]
+

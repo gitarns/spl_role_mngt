@@ -51,6 +51,18 @@ function
 		console.log(msg);
 	}
 	
+	function is_admin() {
+
+		var admin = false;
+		var service = mvc.createService();
+        	service.currentUser(function(err, user) {
+                     
+                     if (user.properties().roles.indexOf("admin") != -1 || user.properties().roles.indexOf("admin_limited") != -1 ){
+			  admin= true;
+			}
+                 });
+		return admin;
+	}
 		
 	function rest_save_csv(user_dict,lk_name) {
 		
@@ -270,6 +282,11 @@ function
 
 					$( ".paramsnav" ).selectable();
 			});
+
+		if(is_admin()){
+		
+
+		}
 
 		$( "#current_roles" ).on("click","li.selectable", function(event) {
 
