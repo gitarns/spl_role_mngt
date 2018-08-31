@@ -19,7 +19,10 @@
 
 				</div>
 				
+				<button id="copy_user" class="ui-button ui-widget ui-corner-all">Copier</button><br></br>
+				<div class="centrer">
 				<button id="save_role" class="ui-button ui-widget ui-corner-all">Enregister</button>
+				</div>
 
 			
 		</html>
@@ -31,15 +34,15 @@
 			<form id="add_user_form">
 			<h3>Ajouter un utilisateur</h3>	
 			IDRH:<br></br>
-			<input type="text" name="idrh" id="idrh"></input><br></br>
+			<input type="text" name="idrh" id="idrh" class="width-dynamic"></input><br></br>
 			Nom:<br></br>
-                        <input type="text" name="nom" id="nom"></input><br></br>
+                        <input type="text" name="nom" id="nom" class="width-dynamic"></input><br></br>
 			Prenom:<br></br>
-                        <input type="text" name="prenom" id="prenom"></input><br></br>
+                        <input type="text" name="prenom" id="prenom" class="width-dynamic"></input><br></br>
 			Email:<br></br>
-                        <input type="text" name="email" id="email"></input><br></br>
+                        <input type="text" name="email" id="email" class="width-dynamic"></input><br></br>
 			Service:<br></br>
-                        <input type="text" name="service" id="service"></input><br></br>
+                        <input type="text" name="service" id="service" class="width-dynamic"></input><br></br>
 			</form>
 			Roles:<br></br>
 

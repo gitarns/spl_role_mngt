@@ -136,12 +136,16 @@ function
 		lk_users_dict.forEach(function(key) {
 			
 			var key1 = "id";
-			var key2 = "text";
-			var key3 = "full_name";
+			var key2 = "idrh";
+			var key3 = "text";
+			var key4 = "service";
+			
 			var obj = {};
 			obj[key1] = id;
 			obj[key2] = key.idrh;
 		    obj[key3] = key.prenom+" "+key.nom;
+			obj[key4] = key.service;
+			
 			list.push(obj);
 			id = id + 1;
 		
@@ -201,19 +205,18 @@ function
 		
 		var myservice = mvc.createService();
 		var searchQuery = "rest /services/authorization/roles | table title";
-
-		console.log("Wait for the search to finish...");
 		myservice.search(
 					  searchQuery,
 					  {exec_mode: "blocking"},
 					  function(err, job) {
-							console.log("...done!\n");
 							job.fetch(function(err){
 							  job.results({}, function(err, results) {
 									results.rows.forEach(function(element){
 										all_roles.push(element[0]);
 									});
+									fill_add_user_role();
 								});
+								
 							});
 						});
 				
@@ -237,9 +240,12 @@ function
 		 allowClear: true
 	});
 	
-	drop_user.on('change', function (e) {
+	$('#top_user_list').on("change", function (e) {
 		
-			var selected_user = e.added.text;
+			// "On change" fires si item supprimé ...dans cas added est remplacé par removed 
+			if(e.hasOwnProperty("added")){
+			
+			var selected_user = e.added.idrh;
 			
 			var cur_list_role = lk_users_dict[lk_users_dict.findIndex((obj => obj.idrh == selected_user))].roles.split(":");
 			var available_role = get_available_roles();  
@@ -264,6 +270,7 @@ function
 			available_role.forEach(function(element) {
 				$("#dispo_roles").append($("<li class='ui-widget-content selectable '>").text(element));
 			});	
+			}
 		});
 
 	$(function() {
@@ -283,7 +290,7 @@ function
 				cur_options.push($(this).text());
 		});
 		
-		var selected_user = drop_user.select2('data').text;
+		var selected_user = drop_user.select2('data').idrh;
 		objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
 		lk_users_dict[objIndex].roles = cur_options.join(":");
 
@@ -300,7 +307,7 @@ function
 				cur_options.push($(this).text());
 		});
 		
-		var selected_user = drop_user.select2('data').text;
+		var selected_user = drop_user.select2('data').idrh;
 		objIndex = lk_users_dict.findIndex((obj => obj.idrh == selected_user));
 		lk_users_dict[objIndex].roles = cur_options.join(":");
 
@@ -330,7 +337,7 @@ function
 	
 	$("#idrh").on("click", function( event ) {
 		
-		fill_add_user_role();
+		//fill_add_user_role();
 		
 	});
 	
@@ -350,11 +357,13 @@ function
 			for (var i = 0; i < all_forms_data.length; i++){
 				new_user[all_forms_data[i]['name']] = all_forms_data[i]['value'];
 				
-				// Check empty or bad inputs
+				// Check empty 
 				if(all_forms_data[i]['value'] == ""){
 					alert(all_forms_data[i]['name']+" ne peut pas ête vide !!");
 					return;
 				}
+				
+				//Bad input
 				switch (all_forms_data[i]['name']) {
 					
 					case 'idrh':
@@ -386,22 +395,29 @@ function
 			
 			//Get roles
 			cur_options = [];
+			
 			$('#add_user_current_roles li').each(function() {
 				cur_options.push($(this).text());
 			});
 			
-		/*	if(cur_options.length == 0){
+			
+			
+			if(cur_options.length == 0){
 				alert("L'utilisateur n'a aucun rôle attribué");
 				return;
 			}
-		*/		
+				
+			
+			
 			new_user["roles"] = cur_options.join(":");
 			
 			// Push dans lk 
 			lk_users_dict.push(new_user);
 			
 			// Reload user list
-			fill_user_list(lk_users_dict);
+			drop_user.select2({
+				data: s2_fill_user_list()
+			});
 			
 			// Clear
 			$("#add_user_form").trigger("reset");
@@ -414,7 +430,105 @@ function
 		
 	});
 	
+	$( "#copy_user" ).on("click", function( event ) {
+		
+		// Clear
+		$("#add_user_form").trigger("reset");
+		$("#add_user_current_roles").empty();
+		$("#add_user_dispo_roles").empty();
+		
+		// Get values:
+		var objIndex = lk_users_dict.findIndex((obj => obj.idrh == drop_user.select2('data').idrh));
+		var available_role = get_available_roles();  
+		var cur_list_role = lk_users_dict[objIndex].roles.split(":");
+				
+		
+		// Fill service
+		$("#service").val(lk_users_dict[objIndex].service);
+		// Fill roles
+		cur_list_role.forEach(function(element) {
+				
+			var pos = available_role.indexOf(element); // >0 si dans liste auth
+			
+			if (pos != -1 ) {
+				$("#add_user_current_roles").append($("<li class='ui-widget-content selectable'>").text(element));
+				var delete_item = available_role.splice(pos,1);
+				}
+			
+
+		});
+			
+		available_role.forEach(function(element) {
+			$("#add_user_dispo_roles").append($("<li class='ui-widget-content selectable '>").text(element));
+		});	
+		
+	});
 	
+	function fill_mail(){
+		
+		if($("#idrh").val().startsWith('x')){
+			$("#email").val("");
+			poste="-prestataire@labanquepostale.fr";
+			$("#email").val($("#prenom").val()+'.'+$("#nom").val()+poste);
+			$("#email").trigger('input');
+		}
+		else if($("#idrh").val().startsWith('p')){
+			$("#email").val("");
+			poste="@labanquepostale.fr";
+			$("#email").val($("#prenom").val()+'.'+$("#nom").val()+poste);
+			$("#email").trigger('input');
+		}
+		else {
+			$("#email").val("");
+		}
+	}
+	
+	$('#nom').on('input', function() { 
+	
+		
+		var int = 7;
+		var el = document.getElementById('nom');
+		el.style.width = ((el.value.length+2) * int) + 'px'
+		fill_mail();
+		
+	});
+	
+	$('#prenom').on('input', function() { 
+	
+		var int = 7;
+		var el = document.getElementById('prenom');
+		el.style.width = ((el.value.length+2) * int) + 'px'
+		fill_mail();
+		
+	});
+	
+	$('#idrh').on('input', function() { 
+	
+		var int = 7;
+		var el = document.getElementById('idrh');
+		el.style.width = ((el.value.length+2) * int) + 'px'
+		fill_mail();
+		
+	});
+	
+	$('#service').on('input', function() { 
+	
+		var int = 7;
+		var el = document.getElementById('service');
+		el.style.width = ((el.value.length+2) * int) + 'px'
+		
+		
+	});
+
+	$("#email").on('input', function() {
+		
+		var int = 7;
+		var el = document.getElementById('email');
+		el.style.width = ((el.value.length+2) * int) + 'px'
+		
+		
+	}).trigger('input');
+
 	
 	
 	

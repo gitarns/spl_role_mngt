@@ -1,2 +1,2 @@
 []
-access = read : [ admin,role_admin ], write : [ admin ]
+access = read : [ admin,role_admin,delegation_role ], write : [ admin ]

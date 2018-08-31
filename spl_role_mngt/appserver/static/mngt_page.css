@@ -24,3 +24,11 @@
     margin: 0 auto;
 }
 
+.centrer {
+  text-align: center;
+}
+
+.width-dynamic {
+  min-width: 150px;
+  text-align: left;
+}
