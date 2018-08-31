@@ -1,13 +1,13 @@
 [lookup/delegation.csv]
-access = read : [deleg_role,admin,admin_limited] , write : [admin,admin_limited]
+access = read : [delegation_role,admin,admin_limited] , write : [admin,admin_limited]
 
 [lookup/user.csv]
-access = read : [user_authentication,deleg_role,admin,admin_limited] , write : [admin,admin_limited,user_authentication]
+access = read : [delegation_role,admin,admin_limited] , write : [admin,admin_limited]
 
 
 [views/deleg_mngt_page.xml]
 access = read : [admin,admin_limited] , write : [admin]
 
 [views/mngt_page.xml]
-access = read : [deleg_role,admin,admin_limited] , write : [admin]
+access = read : [delegation_role,admin,admin_limited] , write : [admin]
 
