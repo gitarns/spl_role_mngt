@@ -237,9 +237,6 @@ function
 		 allowClear: true
 	});
 	
-	
-	
-	
 	drop_user.on('change', function (e) {
 		
 			var selected_user = e.added.text;
@@ -393,11 +390,11 @@ function
 				cur_options.push($(this).text());
 			});
 			
-			if(cur_options.length == 0){
+		/*	if(cur_options.length == 0){
 				alert("L'utilisateur n'a aucun rôle attribué");
 				return;
 			}
-				
+		*/		
 			new_user["roles"] = cur_options.join(":");
 			
 			// Push dans lk 
@@ -416,6 +413,9 @@ function
 			
 		
 	});
+	
+	
+	
 	
 	
 });
