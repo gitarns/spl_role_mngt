@@ -6,55 +6,78 @@
 	
 	<row>
 		<panel>
+	
 		<html>  
-				<div id="top_user_list" class="user_list"></div>
-
-				<br></br>
-
-				<div id="params">	
-
-				<ul id="current_roles" class="paramsnav dropdown current"></ul>
 				
-                                <ul id="dispo_roles" class="paramsnav dropdown dispo"></ul>
+				<div style="display:flex;flex-direction:column;width:600px;">
+					<div id="top_user_list" class="user_list" style="margin:10px;max-width:300px;"></div>
 
+					<div id="params" style="margin:10px;">	
+						<ul id="current_roles" class="paramsnav dropdown current"></ul>
+						<ul id="dispo_roles" class="paramsnav dropdown dispo"></ul>
+					</div>				
+					
+					<div>
+						<button id="copy_user" class="btn_send" style="margin:10px;">Copier</button>
+					</div>
 				</div>
 				
-				<button id="copy_user" class="ui-button ui-widget ui-corner-all">Copier</button><br></br>
-				<div class="centrer">
-				<button id="save_role" class="ui-button ui-widget ui-corner-all">Enregister</button>
+				<div>
+					<button id="save_role" class="btn_send" style="margin:20px;margin-left:300px;">Enregister les modifications</button>
+					<button id="cancel" class="btn_send" style="margin:20px;margin-left:10px;">Annuler les modifications</button>
 				</div>
 
 			
 		</html>
+		
 		</panel>
+		
 	</row>
+	
 	<row>
+	
 		<panel>
-		<html>
-			<form id="add_user_form">
-			<h3>Ajouter un utilisateur</h3>	
-			IDRH:<br></br>
-			<input type="text" name="idrh" id="idrh" class="width-dynamic"></input><br></br>
-			Nom:<br></br>
-                        <input type="text" name="nom" id="nom" class="width-dynamic"></input><br></br>
-			Prenom:<br></br>
-                        <input type="text" name="prenom" id="prenom" class="width-dynamic"></input><br></br>
-			Email:<br></br>
-                        <input type="text" name="email" id="email" class="width-dynamic"></input><br></br>
-			Service:<br></br>
-                        <input type="text" name="service" id="service" class="width-dynamic"></input><br></br>
-			</form>
-			Roles:<br></br>
-
-			<div id="params">
-                        <ul id="add_user_current_roles" class="paramsnav dropdown current"></ul>
-                        <ul id="add_user_dispo_roles" class="paramsnav dropdown dispo"></ul>
-			</div>
-
-			<button id="add_user" class="ui-button ui-widget ui-corner-all">Ajouter</button>
+	
+			<html>
+			
 				
-		</html> 
+				<div style="display:flex;justify-content: flex-start;align-items:center;">
+					
+				<div style="margin: 30px;">
+					<h3>Ajouter un utilisateur</h3>	
+					Roles:<br></br>
+					<ul id="add_user_current_roles" class="paramsnav dropdown current"></ul>
+					<ul id="add_user_dispo_roles" class="paramsnav dropdown dispo"></ul>
+					
+					
+				</div>
+				
+				<div style="margin:30px;">
+					<form id="add_user_form">
+					IDRH:<br></br>
+					<input type="text" name="idrh" id="idrh" class="width-dynamic"></input><br></br>
+					Nom:<br></br>
+					<input type="text" name="nom" id="nom" class="width-dynamic"></input><br></br>
+					Prenom:<br></br>
+					<input type="text" name="prenom" id="prenom" class="width-dynamic"></input><br></br>
+					Email:<br></br>
+					<input type="text" name="email" id="email" class="width-dynamic"></input><br></br>
+					Service:<br></br>
+					<input type="text" name="service" id="service" class="width-dynamic"></input><br></br>
+					</form>
+					
+				</div>
+				
+				<div style="margin: 30px;">
+					<button id="add_user" class="btn_send" >Ajouter</button>
+				</div>
+				
+				
+				</div>
+			</html> 
+		
 		</panel>
 	</row>
+	
 </dashboard>
 

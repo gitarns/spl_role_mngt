@@ -143,7 +143,7 @@ function
 			var obj = {};
 			obj[key1] = id;
 			obj[key2] = key.idrh;
-		    obj[key3] = key.prenom+" "+key.nom;
+		    obj[key3] = key.prenom+" "+key.nom+" ("+key.idrh+")";
 			obj[key4] = key.service;
 			
 			list.push(obj);
@@ -335,12 +335,6 @@ function
 		
 	});
 	
-	$("#idrh").on("click", function( event ) {
-		
-		//fill_add_user_role();
-		
-	});
-	
 	
 
 	$( "#add_user" ).on("click", function( event ) {
@@ -427,6 +421,24 @@ function
 			fill_add_user_role();
 			
 			
+		
+	});
+	
+	$( "#cancel" ).on("click", function( event ) {
+		
+		csv = rest_load_csv("user.csv");
+		lk_users_dict  =  csv_2_dict(csv);
+		drop_user.select2({
+				data: s2_fill_user_list()
+			});
+		$('#top_user_list').val(null);
+		// Clear add form
+		$("#add_user_form").trigger("reset");
+		$("#add_user_current_roles").empty();
+		$("#add_user_dispo_roles").empty();
+		// Clear roles
+		$("#current_roles").empty();
+		$("#dispo_roles").empty();
 		
 	});
 	

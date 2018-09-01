@@ -136,7 +136,12 @@ def update_lookup_table(filename, lookup_file, namespace, owner, key):
         'output_mode': 'json',
         'eai:data': str(destination_lookup_full_path)
     }
-
+    
+    #AHE ACK READ SESSION FROM FILE
+    
+    f = open("/tmp/session.txt", "r")
+    key=f.readline().rstrip()
+	
     # Perform the call
     rest.simpleRequest(
          url, postargs=postargs, sessionKey=key, raiseAllErrors=True)
