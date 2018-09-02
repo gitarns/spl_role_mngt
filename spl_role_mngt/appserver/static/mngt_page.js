@@ -33,7 +33,6 @@ function
 )
 {
 	
-
 	// Global
 	var lk_users_dict = [];
 	var lk_delegation_dict = [];
@@ -43,7 +42,6 @@ function
 		console.log(msg);
 	}
 	
-		
 	function rest_save_csv(user_dict,lk_name) {
 		
 		
@@ -76,7 +74,6 @@ function
 	
 		
 	}
-	
 	
 	function rest_load_csv(lookup) {	
 	
@@ -172,7 +169,7 @@ function
 		
 		var rt_list_roles = [];
 		
-		c_list_roles = lk_delegation_dict[lk_delegation_dict.findIndex((obj => obj.user == $C.USERNAME))].roles.split(":");
+		c_list_roles = lk_delegation_dict[lk_delegation_dict.findIndex((obj => obj.idrh == $C.USERNAME))].roles.split(":");
 		
 		c_list_roles.forEach(function(element) {
 		
@@ -221,6 +218,30 @@ function
 						});
 				
 	}
+	
+	function fill_mail(){
+		
+		if($("#idrh").val().startsWith('x')){
+			$("#email").val("");
+			poste="-prestataire@labanquepostale.fr";
+			$("#email").val($("#prenom").val()+'.'+$("#nom").val()+poste);
+			$("#email").trigger('input');
+		}
+		else if($("#idrh").val().startsWith('p')){
+			$("#email").val("");
+			poste="@labanquepostale.fr";
+			$("#email").val($("#prenom").val()+'.'+$("#nom").val()+poste);
+			$("#email").trigger('input');
+		}
+		else {
+			$("#email").val("");
+		}
+	}
+	
+	$(function() {
+
+				$( ".paramsnav" ).selectable();
+		});
 		
 	// initial load:
 	get_all_roles();
@@ -228,7 +249,6 @@ function
     lk_users_dict  =  csv_2_dict(csv);
 	csv = rest_load_csv("delegation.csv");
 	lk_delegation_dict  =  csv_2_dict(csv);
-	
 	
 	var drop_user = $('#top_user_list');
 		
@@ -271,11 +291,6 @@ function
 				$("#dispo_roles").append($("<li class='ui-widget-content selectable '>").text(element));
 			});	
 			}
-		});
-
-	$(function() {
-
-				$( ".paramsnav" ).selectable();
 		});
 
 	$( "#current_roles" ).on("click","li.selectable", function(event) {
@@ -327,7 +342,6 @@ function
 
 	});
 
-
 	$( "#save_role" ).on("click", function( event ) {
 
 		event.preventDefault();
@@ -335,8 +349,6 @@ function
 		
 	});
 	
-	
-
 	$( "#add_user" ).on("click", function( event ) {
 			
 			event.preventDefault();
@@ -476,25 +488,6 @@ function
 		
 	});
 	
-	function fill_mail(){
-		
-		if($("#idrh").val().startsWith('x')){
-			$("#email").val("");
-			poste="-prestataire@labanquepostale.fr";
-			$("#email").val($("#prenom").val()+'.'+$("#nom").val()+poste);
-			$("#email").trigger('input');
-		}
-		else if($("#idrh").val().startsWith('p')){
-			$("#email").val("");
-			poste="@labanquepostale.fr";
-			$("#email").val($("#prenom").val()+'.'+$("#nom").val()+poste);
-			$("#email").trigger('input');
-		}
-		else {
-			$("#email").val("");
-		}
-	}
-	
 	$('#nom').on('input', function() { 
 	
 		
@@ -541,9 +534,6 @@ function
 		
 	}).trigger('input');
 
-	
-	
-	
 });
 
 

@@ -6,12 +6,10 @@ version = 7.1.2
 modtime = 1535806708.807221000
 
 [lookups/delegation.csv]
-access = read : [delegation_role,admin,] , write : [admin]
+access = read : [ admin, delegation_role ], write : [ admin ]
 export = none
-
-[lookups/toto.csv]
-access = read : [delegation_role] , write : [admin]
-export = none
+version = 7.1.2
+modtime = 1535910521.487034000
 
 [views/deleg_mngt_page.xml]
 access = read : [admin] , write : [admin]

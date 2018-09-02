@@ -1,58 +1,35 @@
 <?xml version='1.0' encoding='utf-8'?>
 
-<dashboard  script="mngt_page.js" stylesheet="mngt_page.css" >
+<dashboard  script="deleg_mngt_page.js" stylesheet="mngt_page.css" >
 	
 	<label>Splunk Role Management</label>
 	
 	<row>
 		<panel>
+	
 		<html>  
-			<form id="update_role_form">
-			<h3>Selectionner un utilisateur</h3>
-			<div id="users_list"></div>
-
-				<div id="params">	
-
-				<ul id="current_roles" class="paramsnav dropdown current"></ul>
 				
-                                <ul id="dispo_roles" class="paramsnav dropdown dispo"></ul>
+				<div style="display:flex;flex-direction:column;width:600px;">
+					<div id="top_user_list" class="user_list" style="margin:10px;max-width:300px;"></div>
+
+					<div id="params" style="margin:10px;">	
+						<ul id="current_roles" class="paramsnav dropdown current"></ul>
+						<ul id="dispo_roles" class="paramsnav dropdown dispo"></ul>
+					</div>				
+					
+				</div>
 				
-				<button id="save_role" class="ui-button ui-widget ui-corner-all">Enregister</button>
+				<div>
+					<button id="save_role" class="btn_send" style="margin:20px;margin-left:300px;">Enregister les modifications</button>
+					<button id="cancel" class="btn_send" style="margin:20px;margin-left:10px;">Annuler les modifications</button>
+				</div>
 
-
-			</div>
-			</form>
 			
 		</html>
+		
 		</panel>
+		
 	</row>
-	<row>
-		<panel>
-		<html>
-			<form id="add_user_form">
-			<h3>Ajouter un utilisateur</h3>	
-			IDRH:<br></br>
-			<input type="text" name="idrh" id="idrh"></input><br></br>
-			Nom:<br></br>
-                        <input type="text" name="nom" id="nom"></input><br></br>
-			Prenom:<br></br>
-                        <input type="text" name="prenom" id="prenom"></input><br></br>
-			Email:<br></br>
-                        <input type="text" name="email" id="email"></input><br></br>
-			Service:<br></br>
-                        <input type="text" name="service" id="service"></input><br></br>
-			</form>
-			Roles:<br></br>
-
-			<div id="params">
-                        <ul id="add_user_current_roles" class="paramsnav dropdown current"></ul>
-                        <ul id="add_user_dispo_roles" class="paramsnav dropdown dispo"></ul>
-			</div>
-
-			<button id="add_user" class="ui-button ui-widget ui-corner-all">Ajouter</button>
-				
-		</html> 
-		</panel>
-	</row>
+	
 </dashboard>
 

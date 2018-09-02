@@ -3,4 +3,7 @@
   <collection label="Search">
   	<view name="search" />
   </collection>
+  <collection label="delegation">
+        <view name="deleg_mngt_page" />
+  </collection>
 </nav>
