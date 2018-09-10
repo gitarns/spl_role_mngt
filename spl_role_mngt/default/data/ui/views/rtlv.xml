@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<dashboard  script="rtlv.js" stylesheet="mngt_page.css">
+<row>
+                <panel>
+		        <label>Splunk Real Time Log Viewer</label>
+			<html>
+				<div id="lvdiv"></div>
+				
+			</html>
+		</panel>
+</row>
+</dashboard>
+

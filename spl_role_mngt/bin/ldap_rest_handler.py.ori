@@ -1,0 +1,55 @@
+#!/bin/env python
+
+import ldap
+
+import logging
+import rest_handler
+
+    class GetLdapUserHandler(rest_handler.RESTHandler):
+        def __init__(self, command_line, command_arg):
+            super(GetLdapUserHandler, self).__init__(command_line, command_arg, logger)
+
+        def get_ldap_user(self, request_info, **kwargs):
+            return {
+                'payload': 'This worked!', # Payload of the request.
+                'status': 200 # HTTP status code
+            }
+
+
+try:
+	l = ldap.open("192.168.1.200")
+	## searching doesn't require a bind in LDAP V3.  If you're using LDAP v2, set the next line appropriately
+	## and do a bind as shown in the above example.
+	# you can also set this to ldap.VERSION2 if you're using a v2 directory
+	# you should  set the next option to ldap.VERSION2 if you're using a v2 directory
+	l.protocol_version = ldap.VERSION3	
+except ldap.LDAPError, e:
+	print e
+	# handle error however you like
+
+
+## The next lines will also need to be changed to support your search requirements and directory
+baseDN = "ou=people, dc=sanrall, dc=local"
+searchScope = ldap.SCOPE_SUBTREE
+## retrieve all attributes - again adjust to your needs - see documentation for more options
+retrieveAttributes = ['uid','homeDirectory']
+searchFilter = "cn=test*"
+
+try:
+	l.simple_bind('cn=admin,dc=sanrall,dc=local','zappamaster')
+	ldap_result_id = l.search(baseDN, searchScope, searchFilter, retrieveAttributes)
+	result_set = []
+	while 1:
+		result_type, result_data = l.result(ldap_result_id, 0)
+		if (result_data == []):
+			break
+		else:
+			## here you don't have to append to a list
+			## you could do whatever you want with the individual entry
+			## The appending to list is just for illustration. 
+			if result_type == ldap.RES_SEARCH_ENTRY:
+				for dn, attrs in result_data:
+					print attrs['uid'][0]
+except ldap.LDAPError, e:
+	print e
+

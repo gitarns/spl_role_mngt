@@ -53,6 +53,7 @@
 				</div>
 				
 				<div style="margin:30px;">
+					<div type="hidden" id="ldap"></div>
 					<form id="add_user_form">
 					IDRH:<br></br>
 					<input type="text" name="idrh" id="idrh" class="width-dynamic"></input><br></br>

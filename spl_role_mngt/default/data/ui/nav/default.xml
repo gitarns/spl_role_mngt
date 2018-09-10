@@ -6,4 +6,7 @@
   <collection label="delegation">
         <view name="deleg_mngt_page" />
   </collection>
+  <collection label="rtlv">
+        <view name="rtlv" />
+  </collection>
 </nav>

@@ -61,7 +61,7 @@ function
 			    "contents"   : json};
 
 		url = Splunk.util.make_full_url("/splunkd/__raw/services/data/lookup_edit/lookup_contents");
-
+		
 		$.ajax({
 				url: url,
 				type: 'POST',
@@ -74,6 +74,8 @@ function
 	
 		
 	}
+	
+		
 	
 	function rest_load_csv(lookup) {	
 	
@@ -259,6 +261,25 @@ function
 		 width: 'auto',
 		 allowClear: true
 	});
+
+	
+	var ldap_user = $('#ldap');
+	rest_url = Splunk.util.make_full_url("/splunkd/__raw//services/ldap_search/get?query=");
+	
+	ldap_user.select2({
+		 placeholder: "Selectionner un idrh",
+		 minimumInputLength: 5,
+		 multiple: true,
+		 dataType: 'json',
+		 ajax: {
+			cache: true,
+			url:function (term) {return rest_url + term},
+			results: function (data, page){if(ldap_user.select2("val")){data['results'][0]['id']=ldap_user.select2("val").length+1};return data;}
+		},
+		 dropdownAutoWidth: true,
+		 width: 'auto',
+		 allowClear: true
+	});	
 	
 	$('#top_user_list').on("change", function (e) {
 		
